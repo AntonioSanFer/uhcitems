@@ -1,0 +1,18 @@
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Logs
+*.log
+
+# Environments
+.env
+.env.*
+
+# Node (if added later)
+node_modules/
+
+# Build outputs
+/dist/
+/build/
