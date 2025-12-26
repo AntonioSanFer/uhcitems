@@ -45,6 +45,32 @@ header h1 {
     color: #8892b0;
 }
 
+/* Roulette button in header */
+.roulette-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 15px 35px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #1a1a2e;
+    background: linear-gradient(135deg, #ff6b6b, #feca57);
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 25px rgba(255, 107, 107, 0.3);
+    animation: pulse-btn 2s ease infinite;
+}
+
+.roulette-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 10px 40px rgba(255, 107, 107, 0.5);
+}
+
+@keyframes pulse-btn {
+    0%, 100% { box-shadow: 0 5px 25px rgba(255, 107, 107, 0.3); }
+    50% { box-shadow: 0 5px 35px rgba(254, 202, 87, 0.5); }
+}
+
 /* Intro section */
 .intro {
     text-align: center;

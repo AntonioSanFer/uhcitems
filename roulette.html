@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruleta de Items - McItems</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .roulette-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .roulette-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .roulette-header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            animation: rainbow 3s ease infinite;
+            background-size: 400% 400%;
+        }
+
+        @keyframes rainbow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .roulette-wrapper {
+            position: relative;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 30px 0;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 50px rgba(0, 217, 255, 0.2);
+        }
+
+        /* Pointer/Selector */
+        .roulette-pointer {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #ff6b6b, #feca57);
+            z-index: 10;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.8);
+        }
+
+        .roulette-pointer::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 20px solid #ff6b6b;
+            filter: drop-shadow(0 0 10px rgba(255, 107, 107, 0.8));
+        }
+
+        .roulette-pointer::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 20px solid #feca57;
+            filter: drop-shadow(0 0 10px rgba(254, 202, 87, 0.8));
+        }
+
+        /* Gradient overlays for fading effect */
+        .roulette-fade-left,
+        .roulette-fade-right {
+            position: absolute;
+            top: 0;
+            width: 150px;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .roulette-fade-left {
+            left: 0;
+            background: linear-gradient(90deg, rgba(26, 26, 46, 1) 0%, transparent 100%);
+        }
+
+        .roulette-fade-right {
+            right: 0;
+            background: linear-gradient(-90deg, rgba(26, 26, 46, 1) 0%, transparent 100%);
+        }
+
+        /* Roulette track */
+        .roulette-track {
+            display: flex;
+            gap: 10px;
+            padding: 0 10px;
+            will-change: transform;
+        }
+
+        .roulette-item {
+            flex-shrink: 0;
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .roulette-item img {
+            width: 60px;
+            height: 60px;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        .roulette-item span {
+            font-size: 0.7rem;
+            text-align: center;
+            color: #a8b2d1;
+            padding: 0 5px;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .roulette-item.winner {
+            border-color: #feca57;
+            box-shadow: 0 0 30px rgba(254, 202, 87, 0.6);
+            animation: pulse-winner 0.5s ease infinite alternate;
+        }
+
+        @keyframes pulse-winner {
+            from { box-shadow: 0 0 30px rgba(254, 202, 87, 0.6); }
+            to { box-shadow: 0 0 50px rgba(254, 202, 87, 0.9); }
+        }
+
+        /* Spin button */
+        .spin-button {
+            display: block;
+            margin: 40px auto 0;
+            padding: 20px 60px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #1a1a2e;
+            background: linear-gradient(135deg, #00d9ff, #00ff88);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 10px 40px rgba(0, 217, 255, 0.3);
+        }
+
+        .spin-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(0, 217, 255, 0.5);
+        }
+
+        .spin-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .spin-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Result display */
+        .result-display {
+            text-align: center;
+            margin-top: 30px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-display.hidden {
+            visibility: hidden;
+        }
+
+        .result-display h2 {
+            font-size: 1.8rem;
+            color: #feca57;
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            padding: 25px 40px;
+            background: rgba(254, 202, 87, 0.1);
+            border-radius: 20px;
+            border: 2px solid rgba(254, 202, 87, 0.3);
+            animation: result-appear 0.5s ease;
+        }
+
+        @keyframes result-appear {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .result-item img {
+            width: 80px;
+            height: 80px;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        .result-item span {
+            font-size: 1.3rem;
+            color: #e4e4e4;
+            font-weight: 500;
+        }
+
+        .result-link {
+            margin-top: 15px;
+            padding: 10px 25px;
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .result-link:hover {
+            background: rgba(0, 217, 255, 0.3);
+        }
+
+        /* Sound toggle */
+        .sound-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #e4e4e4;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sound-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .roulette-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .roulette-item {
+                width: 90px;
+                height: 90px;
+            }
+
+            .roulette-item img {
+                width: 45px;
+                height: 45px;
+            }
+
+            .roulette-item span {
+                font-size: 0.6rem;
+            }
+
+            .spin-button {
+                padding: 15px 40px;
+                font-size: 1.1rem;
+            }
+
+            .roulette-fade-left,
+            .roulette-fade-right {
+                width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="roulette-container">
+        <a href="index.html" class="back-link">← Volver al menú</a>
+
+        <div class="roulette-header">
+            <h1>🎰 Ruleta de Items</h1>
+            <p class="subtitle">¡Prueba tu suerte y descubre qué item te toca!</p>
+        </div>
+
+        <div class="roulette-wrapper">
+            <div class="roulette-pointer"></div>
+            <div class="roulette-fade-left"></div>
+            <div class="roulette-fade-right"></div>
+            <div class="roulette-track" id="rouletteTrack">
+                <!-- Items will be generated by JavaScript -->
+            </div>
+        </div>
+
+        <button class="spin-button" id="spinButton">🎲 Girar</button>
+
+        <div class="result-display hidden" id="resultDisplay">
+            <h2>🎉 ¡Obtuviste!</h2>
+            <div class="result-item" id="resultItem">
+                <img src="" alt="" id="resultImage">
+                <span id="resultName"></span>
+            </div>
+            <a href="#" class="result-link" id="resultLink">Ver cómo obtenerlo →</a>
+        </div>
+    </div>
+
+    <script>
+        // All items data
+        const items = [
+            { name: "Caparazón de Nautilo", img: "https://minecraft.wiki/images/Invicon_Nautilus_Shell.png", link: "items/caparazon-nautilo.html" },
+            { name: "Corazón del Mar", img: "https://minecraft.wiki/images/Invicon_Heart_of_the_Sea.png", link: "items/corazon-del-mar.html" },
+            { name: "Disco de Música", img: "https://minecraft.wiki/images/Invicon_Music_Disc_C418_-_Far.png", link: "items/disco-musica.html" },
+            { name: "Poción de Caída Lenta", img: "https://minecraft.wiki/images/Invicon_Potion_of_Slow_Falling.png", link: "items/pocion-caida-lenta.html" },
+            { name: "Huevo de Tortuga", img: "https://minecraft.wiki/images/Invicon_Turtle_Egg.png", link: "items/huevo-tortuga.html" },
+            { name: "Bloque de Miel", img: "https://minecraft.wiki/images/Invicon_Honey_Block.png", link: "items/bloque-miel.html" },
+            { name: "Flor de Esporas", img: "https://minecraft.wiki/images/Invicon_Spore_Blossom.png", link: "items/flor-esporas.html" },
+            { name: "Lana Verde", img: "https://minecraft.wiki/images/Invicon_Green_Wool.png", link: "items/lana-verde.html" },
+            { name: "Mena de Cobre Profundo", img: "https://minecraft.wiki/images/Invicon_Deepslate_Copper_Ore.png", link: "items/mena-cobre-profundo.html" },
+            { name: "Bayas Luminosas", img: "https://minecraft.wiki/images/Invicon_Glow_Berries.png", link: "items/bayas-luminosas.html" },
+            { name: "Bloque de Diamante", img: "https://minecraft.wiki/images/Invicon_Block_of_Diamond.png", link: "items/bloque-diamante.html" },
+            { name: "Lámpara de Cobre", img: "https://minecraft.wiki/images/Invicon_Copper_Bulb.png", link: "items/lampara-cobre.html" },
+            { name: "Farolillo de Alma", img: "https://minecraft.wiki/images/Invicon_Soul_Lantern.png", link: "items/farolillo-alma.html" },
+            { name: "Ghast Seco", img: "https://minecraft.wiki/images/Invicon_Trial_Spawner.png", link: "items/ghast-seco.html" },
+            { name: "Esponja", img: "https://minecraft.wiki/images/Invicon_Sponge.png", link: "items/esponja.html" },
+            { name: "Llave de Desafío", img: "https://minecraft.wiki/images/Invicon_Trial_Key.png", link: "items/llave-desafio.html" },
+            { name: "Nexo de Aparición", img: "https://minecraft.wiki/images/Invicon_Trial_Spawner.png", link: "items/nexo-aparicion.html" },
+            { name: "Poción Tejedora", img: "https://minecraft.wiki/images/Invicon_Potion_of_Weaving.png", link: "items/pocion-tejedora.html" },
+            { name: "Bloque de Amatista", img: "https://minecraft.wiki/images/Invicon_Block_of_Amethyst.png", link: "items/bloque-amatista.html" },
+            { name: "Vara de Breeze", img: "https://minecraft.wiki/images/Invicon_Breeze_Rod.png", link: "items/vara-breeze.html" },
+            { name: "Pata de Conejo", img: "https://minecraft.wiki/images/Invicon_Rabbit's_Foot.png", link: "items/pata-conejo.html" },
+            { name: "Crema de Magma", img: "https://minecraft.wiki/images/Invicon_Magma_Cream.png", link: "items/crema-magma.html" },
+            { name: "Obsidiana Llorosa", img: "https://minecraft.wiki/images/Invicon_Crying_Obsidian.png", link: "items/obsidiana-llorosa.html" },
+            { name: "Cristal Opaco", img: "https://minecraft.wiki/images/Invicon_Tinted_Glass.png", link: "items/cristal-opaco.html" },
+            { name: "Campana", img: "https://minecraft.wiki/images/Invicon_Bell.png", link: "items/campana.html" },
+            { name: "Sopa de Conejo", img: "https://minecraft.wiki/images/Invicon_Rabbit_Stew.png", link: "items/sopa-conejo.html" },
+            { name: "Ojo de Ender", img: "https://minecraft.wiki/images/Invicon_Eye_of_Ender.png", link: "items/ojo-ender.html" }
+        ];
+
+        const track = document.getElementById('rouletteTrack');
+        const spinButton = document.getElementById('spinButton');
+        const resultDisplay = document.getElementById('resultDisplay');
+        const resultImage = document.getElementById('resultImage');
+        const resultName = document.getElementById('resultName');
+        const resultLink = document.getElementById('resultLink');
+
+        let isSpinning = false;
+        let trackItems = []; // Store the generated track items
+
+        // Shuffle array helper
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // Generate roulette items
+        function generateRouletteItems() {
+            track.innerHTML = '';
+            trackItems = []; // Reset track items
+            // Create multiple sets of shuffled items for a long track
+            const sets = 6;
+            
+            for (let i = 0; i < sets; i++) {
+                trackItems = trackItems.concat(shuffleArray(items));
+            }
+
+            trackItems.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'roulette-item';
+                div.dataset.index = index;
+                div.innerHTML = `
+                    <img src="${item.img}" alt="${item.name}">
+                    <span>${item.name}</span>
+                `;
+                track.appendChild(div);
+            });
+
+            // Reset position
+            track.style.transition = 'none';
+            track.style.transform = 'translateX(0)';
+        }
+
+        // Spin the roulette
+        function spin() {
+            if (isSpinning) return;
+            isSpinning = true;
+            spinButton.disabled = true;
+            resultDisplay.classList.add('hidden');
+
+            // Remove winner class from all items
+            document.querySelectorAll('.roulette-item.winner').forEach(el => {
+                el.classList.remove('winner');
+            });
+
+            // Regenerate items for fresh randomness
+            generateRouletteItems();
+
+            // Calculate spin distance
+            const itemWidth = 130; // item width + gap
+            const containerWidth = track.parentElement.offsetWidth;
+            const centerOffset = containerWidth / 2 - 60; // Center of container minus half item width
+            
+            // Pick a random winning position (somewhere in the middle sets to ensure good animation)
+            const totalItems = track.children.length;
+            const winningIndex = Math.floor(totalItems / 2) + Math.floor(Math.random() * items.length);
+            
+            // Get the actual winning item from the track (not from original items array)
+            const winningItem = trackItems[winningIndex];
+            
+            // Calculate the distance to move
+            const targetPosition = (winningIndex * itemWidth) - centerOffset;
+            
+            // Add some randomness to stop position within the item (but keep it centered)
+            const randomOffset = (Math.random() * 40) - 20;
+            const finalPosition = targetPosition + randomOffset;
+
+            // Animation timing - CS:GO style with fast start and slow end
+            const duration = 5000 + Math.random() * 2000; // 5-7 seconds
+
+            // Apply the animation
+            requestAnimationFrame(() => {
+                track.style.transition = `transform ${duration}ms cubic-bezier(0.15, 0.85, 0.25, 1)`;
+                track.style.transform = `translateX(-${finalPosition}px)`;
+            });
+
+            // Show result after animation
+            setTimeout(() => {
+                // Find the winning element and highlight it
+                const winningElement = track.children[winningIndex];
+                if (winningElement) {
+                    winningElement.classList.add('winner');
+                }
+
+                // Show result
+                resultImage.src = winningItem.img;
+                resultImage.alt = winningItem.name;
+                resultName.textContent = winningItem.name;
+                resultLink.href = winningItem.link;
+                resultDisplay.classList.remove('hidden');
+
+                isSpinning = false;
+                spinButton.disabled = false;
+            }, duration + 200);
+        }
+
+        // Initialize
+        generateRouletteItems();
+        spinButton.addEventListener('click', spin);
+
+        // Add keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !isSpinning) {
+                e.preventDefault();
+                spin();
+            }
+        });
+    </script>
+</body>
+</html>
