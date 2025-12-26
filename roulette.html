@@ -124,6 +124,33 @@
             transition: border-color 0.2s, box-shadow 0.2s;
         }
 
+        .roulette-item.tier-common {
+            background: linear-gradient(145deg, #1a2430, #26374e);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .roulette-item.tier-uncommon {
+            background: linear-gradient(145deg, #132226, #1f4f46);
+            border-color: rgba(92, 220, 170, 0.5);
+        }
+
+        .roulette-item.tier-rare {
+            background: linear-gradient(145deg, #191f3a, #2b2f69);
+            border-color: rgba(155, 170, 255, 0.65);
+        }
+
+        .roulette-item.tier-epic {
+            background: linear-gradient(145deg, #321c46, #4c1b6b);
+            border-color: rgba(255, 126, 211, 0.7);
+            box-shadow: 0 0 15px rgba(255, 126, 211, 0.4);
+        }
+
+        .roulette-item.tier-legendary {
+            background: linear-gradient(145deg, #3b141f, #711417);
+            border-color: rgba(255, 191, 105, 0.85);
+            box-shadow: 0 0 25px rgba(255, 191, 105, 0.45);
+        }
+
         .roulette-item img {
             width: 60px;
             height: 60px;
@@ -205,37 +232,6 @@
             color: #feca57;
             margin-bottom: 15px;
         }
-
-        .result-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            padding: 25px 40px;
-            background: rgba(254, 202, 87, 0.1);
-            border-radius: 20px;
-            border: 2px solid rgba(254, 202, 87, 0.3);
-            animation: result-appear 0.5s ease;
-        }
-
-        @keyframes result-appear {
-            from {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .result-item img {
-            width: 80px;
-            height: 80px;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-        }
-
         .result-item span {
             font-size: 1.3rem;
             color: #e4e4e4;
@@ -493,33 +489,38 @@
     <script>
         // All items data
         const items = [
-            { name: "Caparazón de Nautilo", img: "https://minecraft.wiki/images/Invicon_Nautilus_Shell.png", link: "items/caparazon-nautilo.html" },
-            { name: "Corazón del Mar", img: "https://minecraft.wiki/images/Invicon_Heart_of_the_Sea.png", link: "items/corazon-del-mar.html" },
-            { name: "Disco de Música", img: "https://minecraft.wiki/images/Invicon_Music_Disc_C418_-_Far.png", link: "items/disco-musica.html" },
-            { name: "Poción de Caída Lenta", img: "https://minecraft.wiki/images/Invicon_Potion_of_Slow_Falling.png", link: "items/pocion-caida-lenta.html" },
-            { name: "Huevo de Tortuga", img: "https://minecraft.wiki/images/Invicon_Turtle_Egg.png", link: "items/huevo-tortuga.html" },
-            { name: "Bloque de Miel", img: "https://minecraft.wiki/images/Invicon_Honey_Block.png", link: "items/bloque-miel.html" },
-            { name: "Flor de Esporas", img: "https://minecraft.wiki/images/Invicon_Spore_Blossom.png", link: "items/flor-esporas.html" },
-            { name: "Lana Verde", img: "https://minecraft.wiki/images/Invicon_Green_Wool.png", link: "items/lana-verde.html" },
-            { name: "Mena de Cobre Profundo", img: "https://minecraft.wiki/images/Invicon_Deepslate_Copper_Ore.png", link: "items/mena-cobre-profundo.html" },
-            { name: "Bayas Luminosas", img: "https://minecraft.wiki/images/Invicon_Glow_Berries.png", link: "items/bayas-luminosas.html" },
-            { name: "Bloque de Diamante", img: "https://minecraft.wiki/images/Invicon_Block_of_Diamond.png", link: "items/bloque-diamante.html" },
-            { name: "Lámpara de Cobre", img: "https://minecraft.wiki/images/Invicon_Copper_Bulb.png", link: "items/lampara-cobre.html" },
-            { name: "Farolillo de Alma", img: "https://minecraft.wiki/images/Invicon_Soul_Lantern.png", link: "items/farolillo-alma.html" },
-            { name: "Ghast Seco", img: "https://minecraft.wiki/images/Invicon_Trial_Spawner.png", link: "items/ghast-seco.html" },
-            { name: "Esponja", img: "https://minecraft.wiki/images/Invicon_Sponge.png", link: "items/esponja.html" },
-            { name: "Llave de Desafío", img: "https://minecraft.wiki/images/Invicon_Trial_Key.png", link: "items/llave-desafio.html" },
-            { name: "Nexo de Aparición", img: "https://minecraft.wiki/images/Invicon_Trial_Spawner.png", link: "items/nexo-aparicion.html" },
-            { name: "Poción Tejedora", img: "https://minecraft.wiki/images/Invicon_Potion_of_Weaving.png", link: "items/pocion-tejedora.html" },
-            { name: "Bloque de Amatista", img: "https://minecraft.wiki/images/Invicon_Block_of_Amethyst.png", link: "items/bloque-amatista.html" },
-            { name: "Vara de Breeze", img: "https://minecraft.wiki/images/Invicon_Breeze_Rod.png", link: "items/vara-breeze.html" },
-            { name: "Pata de Conejo", img: "https://minecraft.wiki/images/Invicon_Rabbit's_Foot.png", link: "items/pata-conejo.html" },
-            { name: "Crema de Magma", img: "https://minecraft.wiki/images/Invicon_Magma_Cream.png", link: "items/crema-magma.html" },
-            { name: "Obsidiana Llorosa", img: "https://minecraft.wiki/images/Invicon_Crying_Obsidian.png", link: "items/obsidiana-llorosa.html" },
-            { name: "Cristal Opaco", img: "https://minecraft.wiki/images/Invicon_Tinted_Glass.png", link: "items/cristal-opaco.html" },
-            { name: "Campana", img: "https://minecraft.wiki/images/Invicon_Bell.png", link: "items/campana.html" },
-            { name: "Sopa de Conejo", img: "https://minecraft.wiki/images/Invicon_Rabbit_Stew.png", link: "items/sopa-conejo.html" },
-            { name: "Ojo de Ender", img: "https://minecraft.wiki/images/Invicon_Eye_of_Ender.png", link: "items/ojo-ender.html" }
+            // Common
+            { name: "Lana Verde", img: "https://minecraft.wiki/images/Invicon_Green_Wool.png", link: "items/lana-verde.html", tier: "common" },
+            { name: "Bayas Luminosas", img: "https://minecraft.wiki/images/Invicon_Glow_Berries.png", link: "items/bayas-luminosas.html", tier: "common" },
+            { name: "Campana", img: "https://minecraft.wiki/images/Invicon_Bell.png", link: "items/campana.html", tier: "common" },
+            { name: "Sopa de Conejo", img: "https://minecraft.wiki/images/Invicon_Rabbit_Stew.png", link: "items/sopa-conejo.html", tier: "common" },
+            { name: "Flor de Esporas", img: "https://minecraft.wiki/images/Invicon_Spore_Blossom.png", link: "items/flor-esporas.html", tier: "common" },
+            // Uncommon
+            { name: "Bloque de Miel", img: "https://minecraft.wiki/images/Invicon_Honey_Block.png", link: "items/bloque-miel.html", tier: "uncommon" },
+            { name: "Lámpara de Cobre", img: "https://minecraft.wiki/images/Invicon_Copper_Bulb.png", link: "items/lampara-cobre.html", tier: "uncommon" },
+            { name: "Bloque de Amatista", img: "https://minecraft.wiki/images/Invicon_Block_of_Amethyst.png", link: "items/bloque-amatista.html", tier: "uncommon" },
+            { name: "Crema de Magma", img: "https://minecraft.wiki/images/Invicon_Magma_Cream.png", link: "items/crema-magma.html", tier: "uncommon" },
+            { name: "Farolillo de Alma", img: "https://minecraft.wiki/images/Invicon_Soul_Lantern.png", link: "items/farolillo-alma.html", tier: "uncommon" },
+            // Rare
+            { name: "Pata de Conejo", img: "https://minecraft.wiki/images/Invicon_Rabbit's_Foot.png", link: "items/pata-conejo.html", tier: "rare" },
+            { name: "Poción de Caída Lenta", img: "https://minecraft.wiki/images/Invicon_Potion_of_Slow_Falling.png", link: "items/pocion-caida-lenta.html", tier: "rare" },
+            { name: "Poción Tejedora", img: "https://minecraft.wiki/images/Invicon_Potion_of_Weaving.png", link: "items/pocion-tejedora.html", tier: "rare" },
+            { name: "Cristal Opaco", img: "https://minecraft.wiki/images/Invicon_Tinted_Glass.png", link: "items/cristal-opaco.html", tier: "rare" },
+            { name: "Obsidiana Llorosa", img: "https://minecraft.wiki/images/Invicon_Crying_Obsidian.png", link: "items/obsidiana-llorosa.html", tier: "rare" },
+            { name: "Mena de Cobre Profundo", img: "https://minecraft.wiki/images/Invicon_Deepslate_Copper_Ore.png", link: "items/mena-cobre-profundo.html", tier: "rare" },
+            { name: "Caparazón de Nautilo", img: "https://minecraft.wiki/images/Invicon_Nautilus_Shell.png", link: "items/caparazon-nautilo.html", tier: "rare" },
+            { name: "Ojo de Ender", img: "https://minecraft.wiki/images/Invicon_Eye_of_Ender.png", link: "items/ojo-ender.html", tier: "rare" },
+            { name: "Ghast Seco", img: "https://minecraft.wiki/images/Invicon_Trial_Spawner.png", link: "items/ghast-seco.html", tier: "rare" },
+            // Epic
+            { name: "Disco de Música", img: "https://minecraft.wiki/images/Invicon_Music_Disc_C418_-_Far.png", link: "items/disco-musica.html", tier: "epic" },
+            { name: "Corazón del Mar", img: "https://minecraft.wiki/images/Invicon_Heart_of_the_Sea.png", link: "items/corazon-del-mar.html", tier: "epic" },
+            { name: "Huevo de Tortuga", img: "https://minecraft.wiki/images/Invicon_Turtle_Egg.png", link: "items/huevo-tortuga.html", tier: "epic" },
+            { name: "Vara de Breeze", img: "https://minecraft.wiki/images/Invicon_Breeze_Rod.png", link: "items/vara-breeze.html", tier: "epic" },
+            { name: "Bloque de Diamante", img: "https://minecraft.wiki/images/Invicon_Block_of_Diamond.png", link: "items/bloque-diamante.html", tier: "epic" },
+            // Legendary
+            { name: "Esponja", img: "https://minecraft.wiki/images/Invicon_Sponge.png", link: "items/esponja.html", tier: "legendary" },
+            { name: "Nexo de Aparición", img: "https://minecraft.wiki/images/Invicon_Trial_Spawner.png", link: "items/nexo-aparicion.html", tier: "legendary" },
+            { name: "Llave de Desafío", img: "https://minecraft.wiki/images/Invicon_Trial_Key.png", link: "items/llave-desafio.html", tier: "legendary" },
         ];
 
         const track = document.getElementById('rouletteTrack');
@@ -640,7 +641,8 @@
 
             trackItems.forEach((item, index) => {
                 const div = document.createElement('div');
-                div.className = 'roulette-item';
+                const tierClass = item.tier ? ` tier-${item.tier}` : '';
+                div.className = `roulette-item${tierClass}`;
                 div.dataset.index = index;
                 div.innerHTML = `
                     <img src="${item.img}" alt="${item.name}">
