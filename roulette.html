@@ -256,6 +256,147 @@
             background: rgba(0, 217, 255, 0.3);
         }
 
+        /* Buttons container */
+        .buttons-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .reset-button {
+            padding: 15px 40px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #e4e4e4;
+            background: rgba(255, 107, 107, 0.2);
+            border: 2px solid rgba(255, 107, 107, 0.4);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .reset-button:hover:not(:disabled) {
+            background: rgba(255, 107, 107, 0.3);
+            border-color: rgba(255, 107, 107, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .reset-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Selected items section */
+        .selected-section {
+            margin-top: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .selected-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .selected-header h3 {
+            color: #00d9ff;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .selected-count {
+            background: rgba(0, 217, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #a8b2d1;
+        }
+
+        .selected-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+        }
+
+        .selected-item {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            animation: selected-appear 0.4s ease;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .selected-item:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-3px);
+        }
+
+        @keyframes selected-appear {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .selected-item img {
+            width: 45px;
+            height: 45px;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        .selected-item span {
+            font-size: 0.7rem;
+            text-align: center;
+            color: #a8b2d1;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .selected-empty {
+            text-align: center;
+            color: #5a6a8a;
+            padding: 30px;
+            font-style: italic;
+        }
+
+        .all-collected {
+            text-align: center;
+            padding: 30px;
+            color: #00ff88;
+            font-size: 1.2rem;
+        }
+
+        .all-collected span {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
         /* Sound toggle */
         .sound-toggle {
             position: fixed;
@@ -324,7 +465,10 @@
             </div>
         </div>
 
-        <button class="spin-button" id="spinButton">🎲 Girar</button>
+        <div class="buttons-container">
+            <button class="spin-button" id="spinButton">🎲 Girar</button>
+            <button class="reset-button" id="resetButton" disabled>🔄 Reiniciar</button>
+        </div>
 
         <div class="result-display hidden" id="resultDisplay">
             <h2>🎉 ¡Obtuviste!</h2>
@@ -333,6 +477,16 @@
                 <span id="resultName"></span>
             </div>
             <a href="#" class="result-link" id="resultLink">Ver cómo obtenerlo →</a>
+        </div>
+
+        <div class="selected-section">
+            <div class="selected-header">
+                <h3>📦 Items Obtenidos</h3>
+                <span class="selected-count" id="selectedCount">0 / 27</span>
+            </div>
+            <div class="selected-grid" id="selectedGrid">
+                <p class="selected-empty">Gira la ruleta para obtener items...</p>
+            </div>
         </div>
     </div>
 
@@ -370,13 +524,18 @@
 
         const track = document.getElementById('rouletteTrack');
         const spinButton = document.getElementById('spinButton');
+        const resetButton = document.getElementById('resetButton');
         const resultDisplay = document.getElementById('resultDisplay');
         const resultImage = document.getElementById('resultImage');
         const resultName = document.getElementById('resultName');
         const resultLink = document.getElementById('resultLink');
+        const selectedGrid = document.getElementById('selectedGrid');
+        const selectedCount = document.getElementById('selectedCount');
 
         let isSpinning = false;
         let trackItems = []; // Store the generated track items
+        let selectedItems = []; // Store already selected items
+        let availableItems = [...items]; // Items still available for selection
 
         // Shuffle array helper
         function shuffleArray(array) {
@@ -388,15 +547,59 @@
             return newArray;
         }
 
+        // Update selected items display
+        function updateSelectedDisplay() {
+            selectedCount.textContent = `${selectedItems.length} / ${items.length}`;
+            resetButton.disabled = selectedItems.length === 0;
+            
+            if (selectedItems.length === 0) {
+                selectedGrid.innerHTML = '<p class="selected-empty">Gira la ruleta para obtener items...</p>';
+                return;
+            }
+
+            if (availableItems.length === 0) {
+                spinButton.disabled = true;
+            }
+
+            selectedGrid.innerHTML = selectedItems.map(item => `
+                <a href="${item.link}" class="selected-item">
+                    <img src="${item.img}" alt="${item.name}">
+                    <span>${item.name}</span>
+                </a>
+            `).join('');
+        }
+
+        // Reset all selections
+        function resetSelections() {
+            selectedItems = [];
+            availableItems = [...items];
+            updateSelectedDisplay();
+            spinButton.disabled = false;
+            resultDisplay.classList.add('hidden');
+            generateRouletteItems();
+        }
+
         // Generate roulette items
         function generateRouletteItems() {
             track.innerHTML = '';
             trackItems = []; // Reset track items
+            
+            // Check if there are items available
+            if (availableItems.length === 0) {
+                selectedGrid.innerHTML = `
+                    <div class="all-collected">
+                        <span>🎉</span>
+                        ¡Has obtenido todos los items! Presiona Reiniciar para volver a jugar.
+                    </div>
+                `;
+                return;
+            }
+            
             // Create multiple sets of shuffled items for a long track
             const sets = 6;
             
             for (let i = 0; i < sets; i++) {
-                trackItems = trackItems.concat(shuffleArray(items));
+                trackItems = trackItems.concat(shuffleArray(availableItems));
             }
 
             trackItems.forEach((item, index) => {
@@ -417,9 +620,10 @@
 
         // Spin the roulette
         function spin() {
-            if (isSpinning) return;
+            if (isSpinning || availableItems.length === 0) return;
             isSpinning = true;
             spinButton.disabled = true;
+            resetButton.disabled = true;
             resultDisplay.classList.add('hidden');
 
             // Remove winner class from all items
@@ -437,7 +641,7 @@
             
             // Pick a random winning position (somewhere in the middle sets to ensure good animation)
             const totalItems = track.children.length;
-            const winningIndex = Math.floor(totalItems / 2) + Math.floor(Math.random() * items.length);
+            const winningIndex = Math.floor(totalItems / 2) + Math.floor(Math.random() * availableItems.length);
             
             // Get the actual winning item from the track (not from original items array)
             const winningItem = trackItems[winningIndex];
@@ -473,20 +677,32 @@
                 resultLink.href = winningItem.link;
                 resultDisplay.classList.remove('hidden');
 
+                // Add to selected items and remove from available
+                selectedItems.push(winningItem);
+                availableItems = availableItems.filter(item => item.name !== winningItem.name);
+                updateSelectedDisplay();
+
                 isSpinning = false;
-                spinButton.disabled = false;
+                spinButton.disabled = availableItems.length === 0;
+                resetButton.disabled = false;
             }, duration + 200);
         }
 
         // Initialize
         generateRouletteItems();
+        updateSelectedDisplay();
         spinButton.addEventListener('click', spin);
+        resetButton.addEventListener('click', resetSelections);
 
         // Add keyboard support
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && !isSpinning) {
+            if (e.code === 'Space' && !isSpinning && availableItems.length > 0) {
                 e.preventDefault();
                 spin();
+            }
+            if (e.code === 'KeyR' && !isSpinning && selectedItems.length > 0) {
+                e.preventDefault();
+                resetSelections();
             }
         });
     </script>
