@@ -532,10 +532,44 @@
         const selectedGrid = document.getElementById('selectedGrid');
         const selectedCount = document.getElementById('selectedCount');
 
+        const STORAGE_KEY = 'mcitems-roulette-selected';
+
         let isSpinning = false;
         let trackItems = []; // Store the generated track items
         let selectedItems = []; // Store already selected items
         let availableItems = [...items]; // Items still available for selection
+
+        // Load selected items from localStorage
+        function loadFromStorage() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const savedNames = JSON.parse(saved);
+                    // Rebuild selectedItems from saved names
+                    selectedItems = savedNames
+                        .map(name => items.find(item => item.name === name))
+                        .filter(item => item !== undefined);
+                    // Rebuild availableItems by excluding selected ones
+                    availableItems = items.filter(item => 
+                        !selectedItems.some(selected => selected.name === item.name)
+                    );
+                }
+            } catch (e) {
+                console.error('Error loading from localStorage:', e);
+                selectedItems = [];
+                availableItems = [...items];
+            }
+        }
+
+        // Save selected items to localStorage
+        function saveToStorage() {
+            try {
+                const names = selectedItems.map(item => item.name);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(names));
+            } catch (e) {
+                console.error('Error saving to localStorage:', e);
+            }
+        }
 
         // Shuffle array helper
         function shuffleArray(array) {
@@ -549,6 +583,7 @@
 
         // Update selected items display
         function updateSelectedDisplay() {
+            saveToStorage(); // Persist to localStorage
             selectedCount.textContent = `${selectedItems.length} / ${items.length}`;
             resetButton.disabled = selectedItems.length === 0;
             
@@ -573,6 +608,7 @@
         function resetSelections() {
             selectedItems = [];
             availableItems = [...items];
+            localStorage.removeItem(STORAGE_KEY); // Clear storage
             updateSelectedDisplay();
             spinButton.disabled = false;
             resultDisplay.classList.add('hidden');
@@ -689,8 +725,10 @@
         }
 
         // Initialize
+        loadFromStorage(); // Load saved progress
         generateRouletteItems();
         updateSelectedDisplay();
+        spinButton.disabled = availableItems.length === 0;
         spinButton.addEventListener('click', spin);
         resetButton.addEventListener('click', resetSelections);
 
